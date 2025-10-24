@@ -44,7 +44,8 @@ export default function RunAgentPage() {
   const [showInstructionsDialog, setShowInstructionsDialog] = useState(false);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [desktopPopoverOpen, setDesktopPopoverOpen] = useState(false);
+  const [mobilePopoverOpen, setMobilePopoverOpen] = useState(false);
   const reasoningRef = useRef<HTMLPreElement>(null);
 
   const getToolLabel = (toolValue: string) => {
@@ -145,7 +146,8 @@ export default function RunAgentPage() {
     setCopied(true);
     setTimeout(() => {
       setCopied(false);
-      setPopoverOpen(false);
+      setDesktopPopoverOpen(false);
+      setMobilePopoverOpen(false);
     }, 2000);
   };
 
@@ -154,7 +156,8 @@ export default function RunAgentPage() {
     const text = `Check out my ${agent?.title} agent that I built using Subconscious: ${link}`;
     const twitterUrl = `https://x.com/compose/post?text=${encodeURIComponent(text)}`;
     window.open(twitterUrl, '_blank');
-    setPopoverOpen(false);
+    setDesktopPopoverOpen(false);
+    setMobilePopoverOpen(false);
   };
 
   const handleFork = () => {
@@ -202,7 +205,7 @@ export default function RunAgentPage() {
                     </div>
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                    <Popover open={desktopPopoverOpen} onOpenChange={setDesktopPopoverOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="flex-1 gap-2">
                           <Share2 className="h-3.5 w-3.5" />
@@ -263,7 +266,7 @@ export default function RunAgentPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start gap-2"
+                    className="w-full gap-2"
                     onClick={() => setShowInstructionsDialog(true)}
                   >
                     <FileText className="h-3.5 w-3.5" />
@@ -348,7 +351,7 @@ export default function RunAgentPage() {
                     Reset
                   </Button>
                 )}
-                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <Popover open={mobilePopoverOpen} onOpenChange={setMobilePopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="rounded-full px-3">
                       <Share2 className="mr-1 h-4 w-4" />

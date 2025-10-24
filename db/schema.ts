@@ -7,3 +7,13 @@ export const agentsTable = pgTable('agents', {
   prompt: text().notNull(),
   tools: jsonb(),
 });
+
+export const forksTable = pgTable('forks', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  originalAgentId: integer('original_agent_id')
+    .notNull()
+    .references(() => agentsTable.id),
+  forkedAgentId: integer('forked_agent_id')
+    .notNull()
+    .references(() => agentsTable.id, { onDelete: 'cascade' }),
+});

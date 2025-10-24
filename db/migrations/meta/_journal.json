@@ -8,6 +8,20 @@
       "when": 1759804818982,
       "tag": "0000_big_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761343170570,
+      "tag": "0001_flat_serpent_society",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761343442543,
+      "tag": "0002_aromatic_charles_xavier",
+      "breakpoints": true
     }
   ]
 }

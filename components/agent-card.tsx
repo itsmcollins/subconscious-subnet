@@ -113,7 +113,7 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
         </div>
       </CardContent>
       <CardFooter className="gap-2">
-        <Link href={`/run/${agent.id}`} className="flex-[3]">
+        <Link href={`/agent/${agent.id}`} className="flex-[3]">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
             View Agent
           </Button>

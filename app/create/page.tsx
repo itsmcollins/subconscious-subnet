@@ -2,8 +2,8 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +16,39 @@ import { Separator } from '@/components/ui/separator';
 
 export default function CreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const forkId = searchParams.get('fork');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [prompt, setPrompt] = useState('');
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(!!forkId);
+
+  useEffect(() => {
+    async function loadForkData() {
+      if (!forkId) return;
+
+      try {
+        const response = await fetch(`/api/agents/${forkId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch agent');
+        }
+
+        const agent = await response.json();
+        setTitle(agent.title);
+        setDescription(agent.description);
+        setPrompt(agent.prompt);
+        setSelectedTools(agent.tools || []);
+      } catch (error) {
+        console.error('Error loading fork data:', error);
+        alert('Failed to load agent data for forking.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadForkData();
+  }, [forkId]);
 
   const handleToolToggle = (tool: string) => {
     setSelectedTools((prev) =>
@@ -38,7 +67,8 @@ export default function CreatePage() {
     };
 
     try {
-      const response = await fetch('/api/agents', {
+      const endpoint = forkId ? `/api/agents/${forkId}/fork` : '/api/agents';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,22 +77,41 @@ export default function CreatePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create agent');
+        throw new Error(forkId ? 'Failed to create fork' : 'Failed to create agent');
       }
 
       router.push('/');
     } catch (error) {
       console.error('Error creating agent:', error);
-      alert('Failed to create agent. Please try again.');
+      alert(
+        forkId
+          ? 'Failed to create fork. Please try again.'
+          : 'Failed to create agent. Please try again.',
+      );
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-background min-h-screen">
+        <Header />
+        <main className="container mx-auto max-w-3xl px-4 py-8">
+          <div className="py-16 text-center">
+            <p className="text-muted-foreground text-lg">Loading agent data...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen">
       <Header />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-foreground mb-2 text-4xl font-bold">Create New Agent</h1>
+          <h1 className="text-foreground mb-2 text-4xl font-bold">
+            {forkId ? 'Fork an Agent' : 'Create New Agent'}
+          </h1>
           <p className="text-muted-foreground">
             Configure your Subconscious agent with instructions and search tools
           </p>
@@ -138,7 +187,7 @@ export default function CreatePage() {
                   type="submit"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 cursor-pointer"
                 >
-                  Create Agent
+                  {forkId ? 'Create Fork' : 'Create Agent'}
                 </Button>
                 <Button
                   type="button"
