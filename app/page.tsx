@@ -1,13 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { Agent } from '@/lib/types';
 import { Header } from '@/components/header';
 import { AgentCard } from '@/components/agent-card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
+  const searchParams = useSearchParams();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
 
   useEffect(() => {
     async function fetchAgents() {
@@ -27,6 +38,12 @@ export default function HomePage() {
 
     fetchAgents();
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('s') === 'true') {
+      setShowWelcomeDialog(true);
+    }
+  }, [searchParams]);
 
   return (
     <div className="bg-background min-h-screen">
@@ -63,6 +80,34 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      <Dialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Welcome to SubNet! 👋</DialogTitle>
+          </DialogHeader>
+          <div className="text-muted-foreground space-y-3 pt-2 text-sm">
+            <p>
+              You've been invited to explore an agent built with Subconscious on SubNet - a network
+              of powerful AI agents.
+            </p>
+            <div>
+              <p className="text-foreground font-medium">What you can do:</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                <li>Click "View Agent" to see the agent details</li>
+                <li>Press "Run Agent" to execute it and see live results</li>
+                <li>
+                  Watch the "Reasoning & Tool Usage" section to see the AI's thought process in
+                  real-time
+                </li>
+                <li>The "Final Result" will appear when the agent completes its task</li>
+              </ul>
+            </div>
+            <p className="text-xs">Ready to try it? Find the agent below and give it a run!</p>
+          </div>
+          <Button onClick={() => setShowWelcomeDialog(false)}>Get Started</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

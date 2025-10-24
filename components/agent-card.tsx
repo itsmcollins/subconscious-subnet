@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Trash2, Share2, Check, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { AVAILABLE_TOOLS } from '@/lib/types';
 
@@ -23,6 +24,8 @@ interface AgentCardProps {
 
 export function AgentCard({ agent, onDelete }: AgentCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,6 +52,28 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const link = `${window.location.origin}/run/${agent.id}?s=true`;
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+      setPopoverOpen(false);
+    }, 2000);
+  };
+
+  const handleShareOnX = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const link = `${window.location.origin}/run/${agent.id}?s=true`;
+    const text = `Check out my ${agent.title} agent that I built using Subconscious: ${link}`;
+    const twitterUrl = `https://x.com/compose/post?text=${encodeURIComponent(text)}`;
+    window.open(twitterUrl, '_blank');
+    setPopoverOpen(false);
   };
 
   return (
@@ -87,12 +112,50 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <Link href={`/run/${agent.id}`} className="w-full">
+      <CardFooter className="gap-2">
+        <Link href={`/run/${agent.id}`} className="flex-[3]">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
             View Agent
           </Button>
         </Link>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className="flex-1">
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="end">
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start gap-2"
+                onClick={handleCopyLink}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4" />
+                    Copy Link
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start gap-2"
+                onClick={handleShareOnX}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Share on X
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </CardFooter>
     </Card>
   );
